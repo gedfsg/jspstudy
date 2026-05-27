@@ -14,7 +14,6 @@
     CommentDAO commentDAO = new CommentDAO();
     List<CommentDTO> commentList = commentDAO.getCommentList(boardId);
     
-    // 기존에 작성한 loginId, loginNick 선언 코드를 지우고 이 내용으로 교체해줘
     dto.MemberDTO loginMember = (dto.MemberDTO) session.getAttribute("loginMember");
     String loginId = null;
     String loginNick = null;
@@ -51,6 +50,20 @@
 </div>
 
 <hr>
+
+<div style="text-align: center; margin: 20px 0;">
+    <a href="recommendAction.jsp?boardId=<%= dto.getBoardId() %>&channelId=<%= channelId %>&type=1">
+        <button style="color: blue;">
+            👍 추천 <%= dto.getRecommendCount() %>
+        </button>
+    </a>
+    
+    <a href="recommendAction.jsp?boardId=<%= dto.getBoardId() %>&channelId=<%= channelId %>&type=2">
+        <button style="color: red;">
+            👎 비추천 <%= dto.getUnrecommendCount() %>
+        </button>
+    </a>
+</div>
 
 <div class="comment-list">
     <h3>댓글</h3>
@@ -112,7 +125,7 @@
 
 <hr>
 
-<a href="list.jsp?channelId=<%= channelId %>">목록으로</a>
+<a href="<%= request.getContextPath() %>/channel/channel.jsp?id=<%= channelId %>">목록으로</a>
 
 </body>
 </html>

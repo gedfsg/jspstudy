@@ -215,4 +215,35 @@ public class ChannelDAO {
             if (conn != null) conn.close();
         }
     }
+    
+    public List<ChannelDTO> searchChannels(String keyword) {
+        List<ChannelDTO> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String sql = "SELECT * FROM CHANNEL WHERE CHANNEL_NAME LIKE '%'||?||'%' OR DESCRIPTION LIKE '%'||?||'%'";
+
+        try {
+            conn = DBUtil.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, keyword);
+            pstmt.setString(2, keyword);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                ChannelDTO channel = new ChannelDTO();
+                // DTO에 맞게 카멜 케이스로 변경
+                channel.setChannelId(rs.getInt("CHANNEL_ID"));
+                channel.setChannelName(rs.getString("CHANNEL_NAME"));
+                channel.setDescription(rs.getString("DESCRIPTION"));
+                channel.setOwnerId(rs.getString("OWNER_ID"));
+                list.add(channel);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // 자원 해제
+        }
+        return list;
+    }
 }

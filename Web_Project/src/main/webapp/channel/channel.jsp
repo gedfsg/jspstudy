@@ -3,16 +3,19 @@
 <%@ page import="dto.ChannelDTO" %>
 <%@ page import="dto.MemberDTO" %>
 <%
-    // 채널 ID 파라미터 확인
+    request.setCharacterEncoding("UTF-8");
+
+    // index.jsp에서 넘어오는 'id' 파라미터 받기
     String idParam = request.getParameter("id");
-    if (idParam == null) {
+    
+    // 검색 폼에서 자기 자신으로 전송할 때 폼 안의 name="id" 값을 받음
+    if (idParam == null || idParam.trim().isEmpty()) {
         response.sendRedirect(request.getContextPath() + "/index.jsp");
         return;
     }
+    
     int channelId = Integer.parseInt(idParam);
-
     MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
-
     ChannelDAO dao = new ChannelDAO();
     ChannelDTO channel = dao.getChannelById(channelId);
 
@@ -21,11 +24,14 @@
         return;
     }
 
-    // 구독 여부 확인
     boolean isSubscribed = false;
     if (loginMember != null) {
         isSubscribed = dao.isSubscribed(channelId, loginMember.getMemberId());
     }
+    
+    // 검색용 파라미터 받기
+    String searchType = request.getParameter("searchType");
+    String keyword = request.getParameter("keyword");
 %>
 <!DOCTYPE html>
 <html>
@@ -72,9 +78,27 @@
 
 <hr>
 
+<%-- 채널 내부 검색 폼 영역 --%>
+<div style="text-align: center; margin-bottom: 20px;">
+    <form action="channel.jsp" method="GET">
+        <input type="hidden" name="id" value="<%= channelId %>">
+        
+        <select name="searchType">
+            <option value="title" <%= "title".equals(searchType) ? "selected" : "" %>>제목</option>
+            <option value="title_content" <%= "title_content".equals(searchType) ? "selected" : "" %>>제목 + 내용</option>
+            <option value="writer" <%= "writer".equals(searchType) ? "selected" : "" %>>작성자</option>
+        </select>
+        
+        <input type="text" name="keyword" placeholder="검색어를 입력하세요" value="<%= keyword != null ? keyword : "" %>">
+        <button type="submit">검색</button>
+    </form>
+</div>
+
 <%-- 게시글 목록으로 이동 (board/list.jsp 재사용) --%>
 <jsp:include page="/board/list.jsp">
     <jsp:param name="channelId" value="<%= channelId %>"/>
+    <jsp:param name="searchType" value="<%= searchType != null ? searchType : \"\" %>"/>
+    <jsp:param name="keyword" value="<%= keyword != null ? keyword : \"\" %>"/>
 </jsp:include>
 
 </body>

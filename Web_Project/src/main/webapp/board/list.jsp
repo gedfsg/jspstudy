@@ -4,8 +4,18 @@
 <%@ page import="java.util.List" %>
 <%
     int channelId = Integer.parseInt(request.getParameter("channelId"));
+    String searchType = request.getParameter("searchType");
+    String keyword = request.getParameter("keyword");
+
     BoardDAO dao = new BoardDAO();
-    List<BoardDTO> list = dao.selectBoardList(channelId);
+    List<BoardDTO> list = null;
+
+    // 검색 파라미터가 있으면 검색 메서드 실행, 없으면 전체 목록 실행
+    if (keyword != null && !keyword.trim().isEmpty() && searchType != null) {
+        list = dao.searchBoardsInChannel(channelId, searchType, keyword);
+    } else {
+        list = dao.selectBoardList(channelId);
+    }
 %>
 <!DOCTYPE html>
 <html>

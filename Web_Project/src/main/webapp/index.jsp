@@ -26,6 +26,12 @@
     <title>커뮤니티</title>
 </head>
 <body>
+<div class="search-container">
+    <form action="search.jsp" method="GET">
+        <input type="text" name="keyword" placeholder="채널이나 게시글 검색" required>
+        <button type="submit">검색</button>
+    </form>
+</div>
 
 <%-- 상단 네비게이션 --%>
 <div>
