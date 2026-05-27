@@ -85,14 +85,14 @@ public class BoardDAO {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                BoardDTO dto = new BoardDTO();
-                dto.setBoardId(rs.getInt("BOARD_ID"));
-                dto.setChannelId(rs.getInt("CHANNEL_ID"));
-                dto.setTitle(rs.getString("TITLE"));
-                dto.setWriterNick(rs.getString("WRITER_NICK"));
-                dto.setCreatedAt(rs.getDate("CREATED_AT"));
-                dto.setReadCount(rs.getInt("READ_COUNT"));
-                list.add(dto);
+                BoardDTO board = new BoardDTO();
+                board.setBoardId(rs.getInt("BOARD_ID"));
+                board.setChannelId(rs.getInt("CHANNEL_ID"));
+                board.setTitle(rs.getString("TITLE"));
+                board.setWriterNick(rs.getString("WRITER_NICK"));
+                board.setReadCount(rs.getInt("READ_COUNT"));
+                board.setCreatedAt(rs.getDate("CREATED_AT"));
+                list.add(board);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,6 +174,7 @@ public class BoardDAO {
                 board.setTitle(rs.getString("TITLE"));
                 board.setWriterNick(rs.getString("WRITER_NICK"));
                 board.setReadCount(rs.getInt("READ_COUNT"));
+                board.setCreatedAt(rs.getTimestamp("CREATED_AT"));
                 list.add(board);
             }
         } catch (Exception e) {
@@ -230,6 +231,7 @@ public class BoardDAO {
                 board.setTitle(rs.getString("TITLE"));
                 board.setWriterNick(rs.getString("WRITER_NICK"));
                 board.setReadCount(rs.getInt("READ_COUNT"));
+                board.setCreatedAt(rs.getTimestamp("CREATED_AT"));
                 list.add(board);
             }
         } catch (Exception e) {
@@ -313,5 +315,47 @@ public class BoardDAO {
                 e.printStackTrace();
             }
         }
+    }
+    
+    public int insertBoardReturnId(BoardDTO dto) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int boardId = -1;
+
+        String sql = """
+            INSERT INTO BOARD (
+                BOARD_ID, CHANNEL_ID, TITLE, CONTENT,
+                MEMBER_ID, WRITER_NICK, WRITER_IP, BOARD_PASSWORD
+            ) VALUES (
+                SEQ_BOARD.NEXTVAL, ?, ?, ?, ?, ?, ?, ?
+            )
+        """;
+
+        try {
+            conn = DBUtil.getConnection();
+            pstmt = conn.prepareStatement(sql, new String[]{"BOARD_ID"});
+            pstmt.setInt(1, dto.getChannelId());
+            pstmt.setString(2, dto.getTitle());
+            pstmt.setString(3, dto.getContent());
+            pstmt.setString(4, dto.getMemberId());
+            pstmt.setString(5, dto.getWriterNick());
+            pstmt.setString(6, dto.getWriterIp());
+            pstmt.setString(7, dto.getBoardPassword());
+            pstmt.executeUpdate();
+
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) boardId = rs.getInt(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+        return boardId;
     }
 }

@@ -3,6 +3,8 @@
 <%@ page import="dto.BoardDTO" %>
 <%@ page import="dao.CommentDAO" %>
 <%@ page import="dto.CommentDTO" %>
+<%@ page import="dao.BoardFileDAO" %>       <%-- 추가 --%>
+<%@ page import="dto.BoardFileDTO" %>       <%-- 추가 --%>
 <%@ page import="java.util.List" %>
 <%
     int boardId = Integer.parseInt(request.getParameter("boardId"));
@@ -13,11 +15,14 @@
 
     CommentDAO commentDAO = new CommentDAO();
     List<CommentDTO> commentList = commentDAO.getCommentList(boardId);
-    
+
+    BoardFileDAO fileDAO = new BoardFileDAO();           // 추가
+    List<BoardFileDTO> fileList = fileDAO.getFileList(boardId);  // 추가
+
     dto.MemberDTO loginMember = (dto.MemberDTO) session.getAttribute("loginMember");
     String loginId = null;
     String loginNick = null;
-    
+
     if (loginMember != null) {
         loginId = loginMember.getMemberId();
         loginNick = loginMember.getNickname();
@@ -49,6 +54,32 @@
     <%= dto.getContent() %>
 </div>
 
+<%-- ↓ 첨부파일 영역 추가 --%>
+<% if (fileList != null && !fileList.isEmpty()) { %>
+<hr>
+<div style="margin: 15px 0;">
+    <strong>첨부파일</strong>
+    <ul style="list-style: none; padding: 0;">
+    <% for (BoardFileDTO f : fileList) { %>
+        <li style="margin: 8px 0;">
+            <% if (f.isImage()) { %>
+                <img src="<%= request.getContextPath() %>/uploads/board/<%= f.getSavedName() %>"
+                     alt="<%= f.getOriginalName() %>"
+                     style="max-width: 600px; max-height: 400px; display: block; margin-bottom: 4px;">
+            <% } %>
+            <a href="<%= request.getContextPath() %>/board/fileDownload.jsp?fileId=<%= f.getFileId() %>">
+                📎 <%= f.getOriginalName() %>
+            </a>
+            <span style="font-size: 0.8em; color: gray;">
+                (<%= String.format("%.1f", f.getFileSize() / 1024.0) %> KB)
+            </span>
+        </li>
+    <% } %>
+    </ul>
+</div>
+<% } %>
+<%-- ↑ 여기까지 추가 --%>
+
 <hr>
 
 <div style="text-align: center; margin: 20px 0;">
@@ -73,7 +104,6 @@
         <div style="border-bottom: 1px solid #ddd; margin-bottom: 10px; padding-bottom: 10px;">
             <strong><%= comment.getWriterNick() %></strong>
             
-            <%-- 비로그인 사용자라면 IP 주소 노출 --%>
             <% if(comment.getMemberId() == null) { %>
                 <span style="font-size: 0.8em; color: gray;">(<%= comment.getIpAddress() %>)</span>
             <% } %>
@@ -82,7 +112,6 @@
             
             <p style="margin: 5px 0;"><%= comment.getContent() %></p>
             
-            <%-- 삭제 버튼 영역 --%>
             <form action="commentDeleteAction.jsp" method="post" style="display:inline;">
                 <input type="hidden" name="commentId" value="<%= comment.getCommentId() %>">
                 <input type="hidden" name="boardId" value="<%= boardId %>">

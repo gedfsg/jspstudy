@@ -24,7 +24,7 @@
 
 <h2>글쓰기</h2>
 
-<form action="<%= request.getContextPath() %>/board/write_process.jsp" method="post">
+<form action="<%= request.getContextPath() %>/board/write_process.jsp" method="post" enctype="multipart/form-data">
     <input type="hidden" name="channelId" value="<%= channelId %>">
 
     <% if (loginMember == null) { %>
@@ -43,6 +43,15 @@
         <label>내용:<br>
             <textarea name="content" rows="15" cols="60" required></textarea>
         </label>
+    </div>
+
+    <div style="margin-top: 10px;">
+        <label>파일 첨부 (최대 5개, 각 10MB 이하):<br>
+            <input type="file" name="uploadFiles" multiple>
+        </label>
+        <p style="font-size: 0.85em; color: gray;">
+            이미지(jpg, png, gif, webp)는 게시글에 미리보기로 표시됩니다.
+        </p>
     </div>
 
     <button type="submit">등록</button>

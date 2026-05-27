@@ -63,7 +63,7 @@
             <a href="board/detail.jsp?boardId=<%= board.getBoardId() %>&channelId=<%= board.getChannelId() %>">
     			<strong><%= board.getTitle() %></strong>
 			</a>
-            [조회수: <%= board.getReadCount() %>]
+            [조회수: <%= board.getReadCount() %>] | <%= board.getCreatedAt() %> | <%= board.getWriterNick() %>
         </li>
     <%
             }
